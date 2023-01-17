@@ -1,19 +1,20 @@
 package com.atguigu;
-import com.atguigu.func.CustomerDeserializationSchema;
-import com.ververica.cdc.connectors.mysql.table.StartupOptions;
-import org.apache.flink.api.common.eventtime.WatermarkStrategy;
+
 import com.ververica.cdc.connectors.mysql.source.MySqlSource;
+import com.ververica.cdc.connectors.mysql.table.StartupOptions;
+import com.ververica.cdc.debezium.JsonDebeziumDeserializationSchema;
+import java.util.Properties;
+import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.restartstrategy.RestartStrategies;
 import org.apache.flink.api.common.time.Time;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import java.util.Properties;
  
 /**
  * @author : zhuhaohao
  * @date :
+ * // 测试flink cdc2.3.0 对多库多表和指定时间戳的支持问题
  */
- 
-// 测试flink cdc2.3.0 对多库多表和指定时间戳的支持问题
+
 public class FlinkCdcApp {
     public static String HOST = "10.168.11.121";
     public static int PORT = 3306 ;
@@ -27,9 +28,9 @@ public class FlinkCdcApp {
                 .tableList("cdc_test.user_info","dong_test.teacher_info") // set captured table
                 .username("root")
                 .password("123456")
-                .startupOptions(StartupOptions.timestamp(1673921790000L))
+                .startupOptions(StartupOptions.timestamp(1673926303000L))
                 .debeziumProperties(getDebeziumProperties())
-                .deserializer(new CustomerDeserializationSchema()) // converts SourceRecord to JSON String
+                .deserializer(new JsonDebeziumDeserializationSchema()) // converts SourceRecord to JSON String
                 .build();
         env
                 .fromSource(mySqlSource, WatermarkStrategy.noWatermarks(), "MySQL Source")

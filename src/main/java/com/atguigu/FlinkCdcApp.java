@@ -1,44 +1,57 @@
 package com.atguigu;
-
 import com.atguigu.func.CustomerDeserializationSchema;
-import com.ververica.cdc.connectors.mysql.MySqlSource;
 import com.ververica.cdc.connectors.mysql.table.StartupOptions;
-import com.ververica.cdc.debezium.DebeziumSourceFunction;
+import org.apache.flink.api.common.eventtime.WatermarkStrategy;
+import com.ververica.cdc.connectors.mysql.source.MySqlSource;
 import org.apache.flink.api.common.restartstrategy.RestartStrategies;
 import org.apache.flink.api.common.time.Time;
-import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-
-public class FlinkCDC {
-
+import java.util.Properties;
+ 
+/**
+ * @author : zhuhaohao
+ * @date :
+ */
+ 
+// 测试flink cdc2.3.0 对多库多表和指定时间戳的支持问题
+public class FlinkCdcApp {
+    public static String HOST = "10.168.11.121";
+    public static int PORT = 3306 ;
     public static void main(String[] args) throws Exception {
-
-        //1.获取Flink 执行环境
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        env.setParallelism(1);
         setEnvProperties(env);
-
-
-        //2.通过FlinkCDC构建SourceFunction
-        DebeziumSourceFunction<String> sourceFunction = MySqlSource.<String>builder()
-                .hostname("10.168.11.121")
-                .port(3306)
+        MySqlSource<String> mySqlSource = MySqlSource.<String>builder()
+                .hostname(HOST)
+                .port(PORT)
+                .databaseList("cdc_test","dong_test") // set captured database, If you need to synchronize the whole// database, Please set tableList to ".*".
+                .tableList("cdc_test.user_info","dong_test.teacher_info") // set captured table
                 .username("root")
                 .password("123456")
-                .databaseList("cdc_test")
-                .tableList("cdc_test.user_info")
-                .deserializer(new CustomerDeserializationSchema())
                 .startupOptions(StartupOptions.timestamp(1673921790000L))
+                .debeziumProperties(getDebeziumProperties())
+                .deserializer(new CustomerDeserializationSchema()) // converts SourceRecord to JSON String
                 .build();
-        DataStreamSource<String> dataStreamSource = env.addSource(sourceFunction);
-
-
-        //3.数据打印
-        dataStreamSource.print();
-       /*dataStreamSource.addSink(new FlinkKafkaProducer<String>("aibu01:6667,aibu02:6667,aibu03:6667,aidb:6667", "mlink_cdc_test", new SimpleStringSchema()));*/
-        //4.启动任务
-        env.execute("FlinkCDC");
-
+        env
+                .fromSource(mySqlSource, WatermarkStrategy.noWatermarks(), "MySQL Source")
+                .setParallelism(1)
+                .print().setParallelism(1); // use parallelism 1 for sink to keep message ordering
+        env.execute();
+    }
+    private static Properties getDebeziumProperties(){
+        Properties properties = new Properties();
+        //properties.setProperty("converters", "dateConverters");
+        //根据类在那个包下面修改
+/*        properties.setProperty("dateConverters.type", "com.atguigu.func.MySqlDateTimeConverter");
+        properties.setProperty("dateConverters.format.date", "yyyy-MM-dd");
+        properties.setProperty("dateConverters.format.time", "HH:mm:ss");
+        properties.setProperty("dateConverters.format.datetime", "yyyy-MM-dd HH:mm:ss");
+        properties.setProperty("dateConverters.format.timestamp", "yyyy-MM-dd HH:mm:ss");
+        properties.setProperty("dateConverters.format.timestamp.zone", "UTC+8");*/
+        properties.setProperty("debezium.snapshot.locking.mode","none"); //全局读写锁，可能会影响在线业务，跳过锁设置
+        properties.setProperty("include.schema.changes", "true");
+        properties.setProperty("bigint.unsigned.handling.mode","long");
+        properties.setProperty("decimal.handling.mode","double");
+        return properties;
     }
 
     private static void setEnvProperties(StreamExecutionEnvironment env)  {
@@ -71,5 +84,4 @@ public class FlinkCDC {
         // 失败率重启(在10分钟内最多尝试3次，每次至少间隔1分钟)
         env.setRestartStrategy(RestartStrategies.failureRateRestart(3, Time.minutes(10), Time.minutes(1)));
     }
-
 }

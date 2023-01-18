@@ -25,7 +25,8 @@ public class FlinkSQLCDC {
             " city STRING " +
             ") WITH ( " +
             " 'connector' = 'mysql-cdc', " +
-            " 'scan.startup.mode' = 'latest-offset', " +
+            " 'scan.startup.mode' = 'initial', " +
+            //" 'scan.startup.mode' = 'latest-offset', " +
             " 'hostname' = '10.168.11.121', " +
             " 'port' = '3306', " +
             " 'username' = 'root', " +

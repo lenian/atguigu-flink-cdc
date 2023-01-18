@@ -1,3 +1,4 @@
+/*
 package com.atguigu;
 
 import com.ververica.cdc.connectors.mysql.source.MySqlSource;
@@ -9,11 +10,13 @@ import org.apache.flink.api.common.restartstrategy.RestartStrategies;
 import org.apache.flink.api.common.time.Time;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
  
+*/
 /**
  * @author : zhuhaohao
  * @date :
  * // 测试flink cdc2.3.0 对多库多表和指定时间戳的支持问题
- */
+ *//*
+
 
 public class FlinkCdcApp {
     public static String HOST = "10.168.11.121";
@@ -42,12 +45,14 @@ public class FlinkCdcApp {
         Properties properties = new Properties();
         //properties.setProperty("converters", "dateConverters");
         //根据类在那个包下面修改
+*/
 /*        properties.setProperty("dateConverters.type", "com.atguigu.func.MySqlDateTimeConverter");
         properties.setProperty("dateConverters.format.date", "yyyy-MM-dd");
         properties.setProperty("dateConverters.format.time", "HH:mm:ss");
         properties.setProperty("dateConverters.format.datetime", "yyyy-MM-dd HH:mm:ss");
         properties.setProperty("dateConverters.format.timestamp", "yyyy-MM-dd HH:mm:ss");
-        properties.setProperty("dateConverters.format.timestamp.zone", "UTC+8");*/
+        properties.setProperty("dateConverters.format.timestamp.zone", "UTC+8");*//*
+
         properties.setProperty("debezium.snapshot.locking.mode","none"); //全局读写锁，可能会影响在线业务，跳过锁设置
         properties.setProperty("include.schema.changes", "true");
         properties.setProperty("bigint.unsigned.handling.mode","long");
@@ -65,7 +70,8 @@ public class FlinkCdcApp {
         //env.getCheckpointConfig().enableExternalizedCheckpoints(CheckpointConfig.ExternalizedCheckpointCleanup
         // .RETAIN_ON_CANCELLATION);
         // 2. 检查点配置 (每300ms让jobManager进行一次checkpoint检查)
-       /* env.enableCheckpointing(300);
+       */
+/* env.enableCheckpointing(300);
         // 高级选项
         env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
         //Checkpoint的处理超时时间
@@ -77,7 +83,8 @@ public class FlinkCdcApp {
         // 如果同时开启了savepoint且有更新的备份，是否倾向于使用更老的自动备份checkpoint来恢复，默认false
         env.getCheckpointConfig().setPreferCheckpointForRecovery(true);
         // 最多能容忍几次checkpoint处理失败（默认0，即checkpoint处理失败，就当作程序执行异常）
-        env.getCheckpointConfig().setTolerableCheckpointFailureNumber(0);*/
+        env.getCheckpointConfig().setTolerableCheckpointFailureNumber(0);*//*
+
 
         // 3. 重启策略配置
         // 固定延迟重启(最多尝试3次，每次间隔10s)
@@ -85,4 +92,4 @@ public class FlinkCdcApp {
         // 失败率重启(在10分钟内最多尝试3次，每次至少间隔1分钟)
         env.setRestartStrategy(RestartStrategies.failureRateRestart(3, Time.minutes(10), Time.minutes(1)));
     }
-}
+}*/

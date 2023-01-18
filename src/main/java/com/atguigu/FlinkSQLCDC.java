@@ -94,8 +94,10 @@ public class FlinkSQLCDC {
         DataStream<Tuple2<Boolean, Row>> retractStream = tableEnv.toRetractStream(table, Row.class);
         retractStream.print();*/
 
-       //sink到mysql, 同一主键的增删改都同步到sink端
-        tableEnv.executeSql("INSERT INTO user_info2 select id,name,age,city from user_info");
+        //sink到mysql,同一主键记录的增删改都会同步过来
+        TableResult tableResult = tableEnv.executeSql("INSERT INTO user_info2 select id,name,age,city from user_info");
+        //像spark一样,必须跟上行动算子,不然flink会报错 No operators defined in streaming topology. Cannot execute
+        tableResult.print();
         //4.启动
         env.execute("FlinkSQLCDC");
 

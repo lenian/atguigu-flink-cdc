@@ -28,7 +28,7 @@ public class FlinkCDC {
                 .databaseList("cdc_test")
                 .tableList("cdc_test.user_info")
                 .deserializer(new CustomerDeserializationSchema())
-                .startupOptions(StartupOptions.latest())
+                .startupOptions(StartupOptions.initial()) //2.0.0 FlinkStream 全量同步好,会监听增量数据
                 .build();
         DataStreamSource<String> dataStreamSource = env.addSource(sourceFunction);
 

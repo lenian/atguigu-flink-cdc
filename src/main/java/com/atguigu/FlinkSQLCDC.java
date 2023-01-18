@@ -25,7 +25,7 @@ public class FlinkSQLCDC {
             " city STRING " +
             ") WITH ( " +
             " 'connector' = 'mysql-cdc', " +
-            " 'scan.startup.mode' = 'initial', " +
+            " 'scan.startup.mode' = 'initial', " + //2.0.0 版本FlinkSQl:initial只会全量同步，增量同步失效; 2.3.0版本 initial全量同步后,继续增量同步
             //" 'scan.startup.mode' = 'latest-offset', " +
             " 'hostname' = '10.168.11.121', " +
             " 'port' = '3306', " +
@@ -91,7 +91,7 @@ public class FlinkSQLCDC {
                 ")");*/
 
         //3.查询数据并转换为流输出
-       /* Table table = tableEnv.sqlQuery("select * from user_info");
+        /*Table table = tableEnv.sqlQuery("select * from user_info");
         DataStream<Tuple2<Boolean, Row>> retractStream = tableEnv.toRetractStream(table, Row.class);
         retractStream.print();*/
 

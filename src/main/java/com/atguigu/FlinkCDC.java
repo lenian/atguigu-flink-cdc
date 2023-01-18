@@ -28,7 +28,7 @@ public class FlinkCDC {
                 .databaseList("cdc_test")
                 .tableList("cdc_test.user_info")
                 .deserializer(new CustomerDeserializationSchema())
-                .startupOptions(StartupOptions.timestamp(1673921790000L))
+                .startupOptions(StartupOptions.latest())
                 .build();
         DataStreamSource<String> dataStreamSource = env.addSource(sourceFunction);
 

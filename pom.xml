@@ -102,6 +102,13 @@
             <version>${flink-table-version}</version>
         </dependency>
 
+        <!-- flink jdbc 连接器:flink sql sink 到mysql -->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-connector-jdbc_${scala-version}</artifactId>
+            <version>${flink-version}</version>
+        </dependency>
+
 
         <!--<dependency>
             <groupId>org.apache.phoenix</groupId>
